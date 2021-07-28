@@ -1,0 +1,32 @@
+/*
+  Demo code for grove  atomization.
+  Touch to start atomizing.
+  Last modified by he
+  by xiaohe
+*/
+ 
+// the setup function runs once when you press reset or power the board
+
+int atomizationPin = 2;
+
+void setup() {
+  Serial.begin(9600);
+    // initialize digital pin 13 as an output.
+    pinMode(A5, OUTPUT);// Set A5 as OUTPUT
+    pinMode(atomizationPin, OUTPUT); // Use digital pin 2 for atomizer
+}
+ 
+// the loop function runs over and over again forever
+void loop() {
+    Serial.println(digitalRead(A5)); 
+    int D2Sig = digitalRead(A5);// read pin 2 signal
+    if (D2Sig == 1)
+    {
+        /* code */
+        digitalWrite(atomizationPin, HIGH);   // atomize
+        delay(10000);              // wait for 10 seconds
+        digitalWrite(atomizationPin, LOW);    // atomization stopped
+        
+ 
+    }
+}
