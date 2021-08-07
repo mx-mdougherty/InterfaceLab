@@ -1,0 +1,73 @@
+
+#include <ArduinoBLE.h>
+BLEService difService("19B10010-E8F2-537E-4F6C-D104768A1214"); // BLE Diffuse Service
+// BLE Switch Characteristic - custom 128-bit UUID, read and writable by central
+BLEByteCharacteristic switchCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
+
+void setup() {
+  Serial.begin(9600);
+   while (!Serial);
+   
+   // Use digital pin 2 for diffuser
+    pinMode(2, OUTPUT); 
+
+    // begin initialization
+if (!BLE.begin()) {
+    Serial.println("starting BLE failed!");
+
+    while (1);
+  }
+
+ // set the local name peripheral advertises
+  BLE.setLocalName("BigRed");
+  BLE.setAdvertisedService(difService);
+
+  // add the characteristic to the service
+  difService.addCharacteristic(switchCharacteristic);
+
+  // add service
+  BLE.addService(difService);
+
+  // set the initial value for the characeristic:
+  switchCharacteristic.writeValue(0);
+
+  // start advertising
+  BLE.advertise();
+
+  Serial.println("BLE Red Peripheral");
+
+}
+ 
+// the loop function runs over and over again forever
+void loop() {
+// listen for BLE peripherals to connect:
+  BLEDevice central = BLE.central();
+
+  // if a central is connected to peripheral:
+  if (central) {
+    Serial.print("Connected to central: ");
+    // print the central's MAC address:
+    Serial.println(central.address());
+   
+    // while the central is still connected to peripheral:
+    while (central.connected()) {
+      // if the remote device wrote to the characteristic,
+      // use the value to control the LED:
+      if (switchCharacteristic.written()) {
+        if (switchCharacteristic.value()) {   // any value other than 0
+        Serial.println("Red on");
+        digitalWrite(2, HIGH);// diffuse
+        delay (10000);
+        }   
+        else{
+//      delay (3000); 
+      Serial.println("Red off");
+      digitalWrite(2, LOW); //tnrn diffuser off
+    }
+      }
+    }
+  // when the central disconnects, print it out:
+    Serial.print(F("Disconnected from central: "));
+    Serial.println(central.address());  
+  }
+}
